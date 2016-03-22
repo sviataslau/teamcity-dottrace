@@ -1,8 +1,5 @@
 package jetbrains.buildServer.dotTrace.agent;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.dotTrace.Constants;
 import org.jetbrains.annotations.NotNull;
@@ -11,11 +8,14 @@ import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.util.Collections;
+
 import static org.assertj.core.api.BDDAssertions.then;
 
 public class PatternsGeneratorTest {
   private Mockery myCtx;
-  private TextParser<Metrics> myReportPatternsParser;
+  private TextParser<Threshold> myReportPatternsParser;
   private RunnerParametersService myRunnerParametersService;
 
   @BeforeMethod
@@ -24,7 +24,7 @@ public class PatternsGeneratorTest {
     myCtx = new Mockery();
 
     //noinspection unchecked
-    myReportPatternsParser = (TextParser<Metrics>)myCtx.mock(TextParser.class);
+    myReportPatternsParser = (TextParser<Threshold>) myCtx.mock(TextParser.class);
     myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
   }
 
@@ -32,17 +32,13 @@ public class PatternsGeneratorTest {
   public void shouldGenerateContent() {
     // Given
     String expectedContent = "<Patterns>" +
-                             "<Pattern>Method1</Pattern>" +
-                             "<Pattern>Method2</Pattern>" +
-                             "</Patterns>";
+            "<Pattern/>" +
+            "</Patterns>";
 
     final CommandLineSetup setup = new CommandLineSetup("tool", Collections.<CommandLineArgument>emptyList(), Collections.<CommandLineResource>emptyList());
     myCtx.checking(new Expectations() {{
       oneOf(myRunnerParametersService).tryGetRunnerParameter(Constants.THRESHOLDS_VAR);
       will(returnValue("thresholds"));
-
-      oneOf(myReportPatternsParser).parse("thresholds");
-      will(returnValue(new Metrics(Arrays.asList(new Metric("Method1", "100", "200"), new Metric("Method2", "200", "300")))));
     }});
 
     final PatternsGenerator instance = createInstance();

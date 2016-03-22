@@ -2,18 +2,15 @@ package jetbrains.buildServer.dotTrace.agent;
 
 import org.jetbrains.annotations.NotNull;
 
-public class Metric {
+public class MethodMetric extends MetricBase {
   private final String myMethodName;
-  private final String myTotalTime;
-  private final String myOwnTime;
 
-  public Metric(
+  public MethodMetric(
     @NotNull final String methodName,
     @NotNull final String totalTime,
     @NotNull final String ownTime) {
+    super(totalTime, ownTime);
     myMethodName = methodName;
-    myTotalTime = totalTime;
-    myOwnTime = ownTime;
   }
 
   @NotNull
@@ -21,22 +18,12 @@ public class Metric {
     return myMethodName;
   }
 
-  @NotNull
-  public String getTotalTime() {
-    return myTotalTime;
-  }
-
-  @NotNull
-  public String getOwnTime() {
-    return myOwnTime;
-  }
-
   @Override
   public boolean equals(final Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    final Metric metric = (Metric)o;
+    final MethodMetric metric = (MethodMetric) o;
 
     if (!getMethodName().equals(metric.getMethodName())) return false;
     if (!getTotalTime().equals(metric.getTotalTime())) return false;
@@ -54,10 +41,10 @@ public class Metric {
 
   @Override
   public String toString() {
-    return "Metric{" +
-           "MethodName='" + myMethodName + '\'' +
-           ", TotalTime='" + myTotalTime + '\'' +
-           ", OwnTime='" + myOwnTime + '\'' +
+    return "MethodMetric{" +
+            "MethodName='" + getMethodName() + '\'' +
+            ", TotalTime='" + getTotalTime() + '\'' +
+            ", OwnTime='" + getOwnTime() + '\'' +
            '}';
   }
 }

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.jetbrains.teamcity:server-api:10.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/teamcity/server-api/10.0-SNAPSHOT/server-api-10.0-20160320.232806-355.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/teamcity/server-api/10.0-SNAPSHOT/server-api-10.0-20160320.232806-355-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/teamcity/server-api/10.0-SNAPSHOT/server-api-10.0-20160320.232806-355-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

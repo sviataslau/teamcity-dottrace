@@ -1,13 +1,6 @@
 package jetbrains.buildServer.dotTrace.agent;
 
 import com.intellij.openapi.util.text.StringUtil;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import jetbrains.buildServer.dotNet.buildRunner.agent.BuildException;
 import jetbrains.buildServer.dotNet.buildRunner.agent.TextParser;
 import jetbrains.buildServer.dotNet.buildRunner.agent.XmlDocumentManager;
@@ -17,7 +10,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class ReportParser implements TextParser<Metrics> {
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class ReportParser implements TextParser<List<MethodMetric>> {
   private static final String ERROR_DURING_PARSING_ERROR_MESSAGE = "Error during parsing dotTrace report xml document";
   private static final String FUNCTION_XPATH = "//Report/Function";
   private static final String METHOD_NAME_ATTR = "FQN";
@@ -32,12 +33,12 @@ public class ReportParser implements TextParser<Metrics> {
 
   @NotNull
   @Override
-  public Metrics parse(@NotNull final String reportContent) {
+  public List<MethodMetric> parse(@NotNull final String reportContent) {
     if(StringUtil.isEmptyOrSpaces(reportContent)) {
-      return new Metrics(Collections.<Metric>emptyList());
+      return Collections.emptyList();
     }
 
-    final List<Metric> metrics = new ArrayList<Metric>();
+    final List<MethodMetric> metrics = new ArrayList<MethodMetric>();
     final Document doc = myXmlDocumentManager.convertStringToDocument(reportContent);
     final XPath xpath = XPathFactory.newInstance().newXPath();
     try {
@@ -59,13 +60,13 @@ public class ReportParser implements TextParser<Metrics> {
           continue;
         }
 
-        metrics.add(new Metric(methodName, totalTime, ownTime));
+        metrics.add(new MethodMetric(methodName, totalTime, ownTime));
       }
     }
     catch (XPathExpressionException e) {
       throw new BuildException(ERROR_DURING_PARSING_ERROR_MESSAGE);
     }
 
-    return new Metrics(metrics);
+    return metrics;
   }
 }
