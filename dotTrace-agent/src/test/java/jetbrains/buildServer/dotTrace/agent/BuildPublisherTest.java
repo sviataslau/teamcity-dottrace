@@ -47,14 +47,16 @@ public class BuildPublisherTest {
               new MethodMetric("Method1", "100", "33"),
               new MethodMetric("Method77", "123", "456"),
               new MethodMetric("Method2", "99", "22"),
-              new MethodMetric("Namespace.One.Method", "1", "2"));
+              new MethodMetric("Namespace.One.Method", "1", "2"),
+              new MethodMetric("Namespace.Two.Method", "1", "2"));
 
     final Threshold thresholdsMetrics = new Threshold(
       Arrays.asList(
               new MethodMetric("Method88", "88", "345"),
               new MethodMetric("Method1", "100", "1000"),
               new MethodMetric("Method2", "F22", "F35"),
-              new NamespaceMetric("Namespace.One", "F1", "F2")));
+              new NamespaceMetric("Namespace.One", "F1", "F2", 0),
+              new NamespaceMetric("Namespace.Two", "F1", "F2", 100)));
 
     final CommandLineExecutionContext ctx = new CommandLineExecutionContext(0);
 

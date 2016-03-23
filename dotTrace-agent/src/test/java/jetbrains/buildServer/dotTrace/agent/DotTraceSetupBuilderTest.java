@@ -1,17 +1,17 @@
 package jetbrains.buildServer.dotTrace.agent;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-
-import jetbrains.buildServer.dotTrace.Constants;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
+import jetbrains.buildServer.dotTrace.Constants;
 import org.jetbrains.annotations.NotNull;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
 
 import static org.assertj.core.api.BDDAssertions.then;
 

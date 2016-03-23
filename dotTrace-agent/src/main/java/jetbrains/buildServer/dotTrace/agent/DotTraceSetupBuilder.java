@@ -1,14 +1,14 @@
 package jetbrains.buildServer.dotTrace.agent;
 
 import com.intellij.openapi.util.text.StringUtil;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import jetbrains.buildServer.dotNet.buildRunner.agent.*;
 import jetbrains.buildServer.dotTrace.Constants;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class DotTraceSetupBuilder implements CommandLineSetupBuilder {
   static final String DOT_TRACE_PROJECT_EXT = ".dotTrace.project.xml";

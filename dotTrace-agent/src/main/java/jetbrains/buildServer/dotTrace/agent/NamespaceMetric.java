@@ -4,17 +4,22 @@ package jetbrains.buildServer.dotTrace.agent;
 import org.jetbrains.annotations.NotNull;
 
 public class NamespaceMetric extends MetricBase {
-    private String namespaceName;
+    private final String namespaceName;
+    private final int minMethodTime;
 
-    public NamespaceMetric(@NotNull final String namespaceName, @NotNull String myTotalTime, @NotNull String myOwnTime) {
+    public NamespaceMetric(@NotNull final String namespaceName, @NotNull String myTotalTime, @NotNull String myOwnTime, int minMethodTime) {
         super(myTotalTime, myOwnTime);
         this.namespaceName = namespaceName;
+        this.minMethodTime = minMethodTime;
     }
-
 
     @NotNull
     public String getNamespaceName() {
         return namespaceName;
+    }
+
+    public int getMinMethodTotalTime() {
+        return minMethodTime;
     }
 
     @Override
@@ -25,8 +30,8 @@ public class NamespaceMetric extends MetricBase {
         final NamespaceMetric metric = (NamespaceMetric) o;
         if (!getNamespaceName().equals(metric.getNamespaceName())) return false;
         if (!getTotalTime().equals(metric.getTotalTime())) return false;
-        return getOwnTime().equals(metric.getOwnTime());
-
+        if (!getOwnTime().equals(metric.getOwnTime())) return false;
+        return getMinMethodTotalTime() == metric.getMinMethodTotalTime();
     }
 
     @Override
@@ -34,6 +39,7 @@ public class NamespaceMetric extends MetricBase {
         int result = getNamespaceName().hashCode();
         result = 31 * result + getTotalTime().hashCode();
         result = 31 * result + getOwnTime().hashCode();
+        result = 31 * result + getMinMethodTotalTime();
         return result;
     }
 

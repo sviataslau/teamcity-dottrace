@@ -56,8 +56,21 @@ public class BuildPublisher implements ResourcePublisher {
 
       for (MethodMetric measuredValue : measuredValues) {
         final MetricBase thresholdValue = thresholdValues.getMetric(measuredValue.getMethodName());
-        if(thresholdValue == null) {
+        if (thresholdValue == null) {
           continue;
+        }
+        if (thresholdValue instanceof NamespaceMetric) {
+          NamespaceMetric m = (NamespaceMetric) thresholdValue;
+          int minMethodTime = m.getMinMethodTotalTime();
+          if (minMethodTime > 0) {
+            try {
+              int measuredTotalTime = Integer.parseInt(measuredValue.getTotalTime());
+              if (measuredTotalTime < minMethodTime)
+                continue;
+            } catch (NumberFormatException e) {
+              continue;
+            }
+          }
         }
         myLoggerService.onMessage(new StatisticMessage(measuredValue.getMethodName(), thresholdValue.getTotalTime(), thresholdValue.getOwnTime(), measuredValue.getTotalTime(), measuredValue.getOwnTime()));
       }

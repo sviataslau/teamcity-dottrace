@@ -23,12 +23,17 @@ public class ThresholdsParser implements TextParser<Threshold> {
       }
 
       final String[] params = line.trim().split(ARG_SEPARATOR);
-      if (params.length == 3) {
+      if (params.length >= 3) {
         String target = params[0];
         MetricBase metric;
         final String namespacePrefix = "N:";
         if (target.startsWith(namespacePrefix)) {
-          metric = new NamespaceMetric(target.replace(namespacePrefix, ""), params[1], params[2]);
+          try {
+            int minMethodTime = params.length > 3 ? Integer.parseInt(params[3]) : 0;
+            metric = new NamespaceMetric(target.replace(namespacePrefix, ""), params[1], params[2], minMethodTime);
+          } catch (NumberFormatException e) {
+            throw new BuildException("Invalid metrics");
+          }
         } else {
           metric = new MethodMetric(target, params[1], params[2]);
         }

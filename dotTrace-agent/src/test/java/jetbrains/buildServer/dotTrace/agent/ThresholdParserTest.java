@@ -11,7 +11,7 @@ import java.util.Collections;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
-public class MetricsParserTest {
+public class ThresholdParserTest {
   private static final String ourlineSeparator = "\n";
 
   @DataProvider(name = "parseThresholdsFromStringCases")
@@ -21,8 +21,9 @@ public class MetricsParserTest {
             {"IntegrationTests.MainTests.Test1 100 F15" + ourlineSeparator + "IntegrationTests.MainTests.Test2 200 A15", new Threshold(Arrays.asList((MetricBase) new MethodMetric("IntegrationTests.MainTests.Test1", "100", "F15"), new MethodMetric("IntegrationTests.MainTests.Test2", "200", "A15"))), false},
             {"   " + ourlineSeparator + "IntegrationTests.MainTests.Test1 100 F15" + ourlineSeparator + "   " + ourlineSeparator + ourlineSeparator + "IntegrationTests.MainTests.Test2 200 A15" + ourlineSeparator, new Threshold(Arrays.asList((MetricBase) new MethodMetric("IntegrationTests.MainTests.Test1", "100", "F15"), new MethodMetric("IntegrationTests.MainTests.Test2", "200", "A15"))), false},
             {"", new Threshold(Collections.<MetricBase>emptyList()), false},
-            {"IntegrationTests.MainTests.Test1 100 F15 300", new Threshold(Collections.<MetricBase>emptyList()), true},
-            {"N:Namespace.One 100 F15", new Threshold(Collections.singletonList((MetricBase) new NamespaceMetric("Namespace.One", "100", "F15"))), false},
+            {"IntegrationTests.MainTests.Test1 100 F15 300", new Threshold(Collections.singletonList((MetricBase) new MethodMetric("IntegrationTests.MainTests.Test1", "100", "F15"))), false},
+            {"N:Namespace.One 100 F15", new Threshold(Collections.singletonList((MetricBase) new NamespaceMetric("Namespace.One", "100", "F15", 0))), false},
+            {"N:Namespace.One 100 F14 1000", new Threshold(Collections.singletonList((MetricBase) new NamespaceMetric("Namespace.One", "100", "F14", 1000))), false},
             {"IntegrationTests.MainTests.Test1", new Threshold(Collections.<MetricBase>emptyList()), true},
             {"IntegrationTests.MainTests.Test1" + ourlineSeparator + "IntegrationTests.MainTests.Test2 200 A15", new Threshold(Collections.<MetricBase>emptyList()), true},
     };
