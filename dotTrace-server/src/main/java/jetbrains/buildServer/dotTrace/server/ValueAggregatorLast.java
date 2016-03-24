@@ -1,25 +1,26 @@
 package jetbrains.buildServer.dotTrace.server;
 
-import java.math.BigDecimal;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.math.BigDecimal;
 
 public class ValueAggregatorLast implements ValueAggregator {
-  private BigDecimal myVal = null;
+    private BigDecimal myVal = null;
 
-  @Override
-  public void aggregate(@NotNull final BigDecimal value) {
-    myVal = value;
-  }
+    @Override
+    public void aggregate(@NotNull final BigDecimal value) {
+        myVal = value;
+    }
 
-  @Override
-  public boolean isCompleted() {
-    return false;
-  }
+    @Override
+    public boolean isCompleted() {
+        return false;
+    }
 
-  @Nullable
-  @Override
-  public BigDecimal tryGetAggregatedValue() {
-    return myVal;
-  }
+    @Nullable
+    @Override
+    public BigDecimal tryGetAggregatedValue() {
+        return myVal;
+    }
 }

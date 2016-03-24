@@ -3,14 +3,25 @@ package jetbrains.buildServer.dotTrace.agent;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
+import java.util.List;
+
 public class NamespaceMetric extends MetricBase {
     private final String namespaceName;
     private final int minMethodTime;
+    @NotNull
+    private final List<String> ignoreMethods;
 
-    public NamespaceMetric(@NotNull final String namespaceName, @NotNull String myTotalTime, @NotNull String myOwnTime, int minMethodTime) {
+    public NamespaceMetric(@NotNull final String namespaceName, @NotNull String myTotalTime, @NotNull String myOwnTime, final int minMethodTime, @NotNull final List<String> ignoreMethods) {
         super(myTotalTime, myOwnTime);
         this.namespaceName = namespaceName;
         this.minMethodTime = minMethodTime;
+        this.ignoreMethods = Collections.unmodifiableList(ignoreMethods);
+    }
+
+    @NotNull
+    public List<String> getIgnoreMethods() {
+        return ignoreMethods;
     }
 
     @NotNull

@@ -11,75 +11,75 @@ import java.util.Collections;
 import java.util.List;
 
 public class DotTraceSetupBuilder implements CommandLineSetupBuilder {
-  static final String DOT_TRACE_PROJECT_EXT = ".dotTrace.project.xml";
-  static final String DOT_TRACE_PATTERNS_EXT = ".dotTrace.patterns.xml";
-  static final String DOT_TRACE_REPORT_EXT = ".dotTrace.report.xml";
-  static final String DOT_TRACE_CMD_EXT = ".cmd";
-  static final String DOT_TRACE_SNAPSHOT_FILE = "snapshot.dtp";
+    static final String DOT_TRACE_PROJECT_EXT = ".dotTrace.project.xml";
+    static final String DOT_TRACE_PATTERNS_EXT = ".dotTrace.patterns.xml";
+    static final String DOT_TRACE_REPORT_EXT = ".dotTrace.report.xml";
+    static final String DOT_TRACE_CMD_EXT = ".cmd";
+    static final String DOT_TRACE_SNAPSHOT_FILE = "snapshot.dtp";
 
-  private final ResourceGenerator<Context> myProjectGenerator;
-  private final ResourceGenerator<Context> myPatternGenerator;
-  private final ResourceGenerator<Context> myCmdGenerator;
-  private final ResourcePublisher myBeforeBuildPublisher;
-  private final ResourcePublisher myDotTraceBuildPublisher;
-  private final ResourcePublisher myDotTraceSnapshotsPublisher;
-  private final RunnerParametersService myParametersService;
-  private final FileService myFileService;
-  private final RunnerAssertions myAssertions;
+    private final ResourceGenerator<Context> myProjectGenerator;
+    private final ResourceGenerator<Context> myPatternGenerator;
+    private final ResourceGenerator<Context> myCmdGenerator;
+    private final ResourcePublisher myBeforeBuildPublisher;
+    private final ResourcePublisher myDotTraceBuildPublisher;
+    private final ResourcePublisher myDotTraceSnapshotsPublisher;
+    private final RunnerParametersService myParametersService;
+    private final FileService myFileService;
+    private final RunnerAssertions myAssertions;
 
-  public DotTraceSetupBuilder(
-    @NotNull final ResourceGenerator<Context> projectGenerator,
-    @NotNull final ResourceGenerator<Context> patternGenerator,
-    @NotNull final ResourceGenerator<Context> cmdGenerator,
-    @NotNull final ResourcePublisher beforeBuildPublisher,
-    @NotNull final ResourcePublisher dotTraceBuildPublisher,
-    @NotNull final ResourcePublisher dotTraceSnapshotsPublisher,
-    @NotNull final RunnerParametersService parametersService,
-    @NotNull final FileService fileService,
-    @NotNull final RunnerAssertions assertions) {
-    myProjectGenerator = projectGenerator;
-    myPatternGenerator = patternGenerator;
-    myCmdGenerator = cmdGenerator;
-    myBeforeBuildPublisher = beforeBuildPublisher;
-    myDotTraceBuildPublisher = dotTraceBuildPublisher;
-    myDotTraceSnapshotsPublisher = dotTraceSnapshotsPublisher;
-    myParametersService = parametersService;
-    myFileService = fileService;
-    myAssertions = assertions;
-  }
-
-  @Override
-  @NotNull
-  public Iterable<CommandLineSetup> build(@NotNull final CommandLineSetup baseSetup) {
-    if(myAssertions.contains(RunnerAssertions.Assertion.PROFILING_IS_NOT_ALLOWED)) {
-      return Collections.singleton(baseSetup);
+    public DotTraceSetupBuilder(
+            @NotNull final ResourceGenerator<Context> projectGenerator,
+            @NotNull final ResourceGenerator<Context> patternGenerator,
+            @NotNull final ResourceGenerator<Context> cmdGenerator,
+            @NotNull final ResourcePublisher beforeBuildPublisher,
+            @NotNull final ResourcePublisher dotTraceBuildPublisher,
+            @NotNull final ResourcePublisher dotTraceSnapshotsPublisher,
+            @NotNull final RunnerParametersService parametersService,
+            @NotNull final FileService fileService,
+            @NotNull final RunnerAssertions assertions) {
+        myProjectGenerator = projectGenerator;
+        myPatternGenerator = patternGenerator;
+        myCmdGenerator = cmdGenerator;
+        myBeforeBuildPublisher = beforeBuildPublisher;
+        myDotTraceBuildPublisher = dotTraceBuildPublisher;
+        myDotTraceSnapshotsPublisher = dotTraceSnapshotsPublisher;
+        myParametersService = parametersService;
+        myFileService = fileService;
+        myAssertions = assertions;
     }
 
-    final String dotTraceTool = myParametersService.tryGetRunnerParameter(Constants.USE_VAR);
-    if (StringUtil.isEmptyOrSpaces(dotTraceTool) || !Boolean.parseBoolean(dotTraceTool)) {
-      return Collections.singleton(baseSetup);
+    @Override
+    @NotNull
+    public Iterable<CommandLineSetup> build(@NotNull final CommandLineSetup baseSetup) {
+        if (myAssertions.contains(RunnerAssertions.Assertion.PROFILING_IS_NOT_ALLOWED)) {
+            return Collections.singleton(baseSetup);
+        }
+
+        final String dotTraceTool = myParametersService.tryGetRunnerParameter(Constants.USE_VAR);
+        if (StringUtil.isEmptyOrSpaces(dotTraceTool) || !Boolean.parseBoolean(dotTraceTool)) {
+            return Collections.singleton(baseSetup);
+        }
+
+        final List<CommandLineResource> resources = new ArrayList<CommandLineResource>(baseSetup.getResources());
+        final File cmdFile = myFileService.getTempFileName(DOT_TRACE_CMD_EXT);
+        final File projectFile = myFileService.getTempFileName(DOT_TRACE_PROJECT_EXT);
+        final File snapshotFileDir = myFileService.getTempFileName("");
+        if (!myFileService.exists(snapshotFileDir)) {
+            // TODO: use FileService.createDirectories(path) instead
+            snapshotFileDir.mkdirs();
+        }
+
+        final File snapshotFile = new File(snapshotFileDir, DOT_TRACE_SNAPSHOT_FILE);
+        final File patternsFile = myFileService.getTempFileName(DOT_TRACE_PATTERNS_EXT);
+        final File reportFile = myFileService.getTempFileName(DOT_TRACE_REPORT_EXT);
+        final Context ctx = new Context(baseSetup, projectFile, snapshotFile, patternsFile, reportFile);
+
+        resources.add(new CommandLineFile(myBeforeBuildPublisher, projectFile, myProjectGenerator.create(ctx)));
+        resources.add(new CommandLineFile(myBeforeBuildPublisher, patternsFile, myPatternGenerator.create(ctx)));
+        resources.add(new CommandLineFile(myBeforeBuildPublisher, cmdFile, myCmdGenerator.create(ctx)));
+        resources.add(new CommandLineArtifact(myDotTraceBuildPublisher, reportFile));
+        resources.add(new CommandLineArtifact(myDotTraceSnapshotsPublisher, snapshotFile));
+
+        return Collections.singleton(new CommandLineSetup(cmdFile.getPath(), Collections.<CommandLineArgument>emptyList(), resources));
     }
-
-    final List<CommandLineResource> resources = new ArrayList<CommandLineResource>(baseSetup.getResources());
-    final File cmdFile = myFileService.getTempFileName(DOT_TRACE_CMD_EXT);
-    final File projectFile = myFileService.getTempFileName(DOT_TRACE_PROJECT_EXT);
-    final File snapshotFileDir = myFileService.getTempFileName("");
-    if(!myFileService.exists(snapshotFileDir)) {
-      // TODO: use FileService.createDirectories(path) instead
-      snapshotFileDir.mkdirs();
-    }
-
-    final File snapshotFile = new File(snapshotFileDir, DOT_TRACE_SNAPSHOT_FILE);
-    final File patternsFile = myFileService.getTempFileName(DOT_TRACE_PATTERNS_EXT);
-    final File reportFile = myFileService.getTempFileName(DOT_TRACE_REPORT_EXT);
-    final Context ctx = new Context(baseSetup, projectFile, snapshotFile, patternsFile, reportFile);
-
-    resources.add(new CommandLineFile(myBeforeBuildPublisher, projectFile, myProjectGenerator.create(ctx)));
-    resources.add(new CommandLineFile(myBeforeBuildPublisher, patternsFile, myPatternGenerator.create(ctx)));
-    resources.add(new CommandLineFile(myBeforeBuildPublisher, cmdFile, myCmdGenerator.create(ctx)));
-    resources.add(new CommandLineArtifact(myDotTraceBuildPublisher, reportFile));
-    resources.add(new CommandLineArtifact(myDotTraceSnapshotsPublisher, snapshotFile));
-
-    return Collections.singleton(new CommandLineSetup(cmdFile.getPath(), Collections.<CommandLineArgument>emptyList(), resources));
-  }
 }

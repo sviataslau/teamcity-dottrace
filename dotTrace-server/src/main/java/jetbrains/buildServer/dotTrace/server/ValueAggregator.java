@@ -1,14 +1,15 @@
 package jetbrains.buildServer.dotTrace.server;
 
-import java.math.BigDecimal;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.math.BigDecimal;
 
 public interface ValueAggregator {
-  void aggregate(@NotNull final BigDecimal value);
+    void aggregate(@NotNull final BigDecimal value);
 
-  boolean isCompleted();
+    boolean isCompleted();
 
-  @Nullable
-  BigDecimal tryGetAggregatedValue();
+    @Nullable
+    BigDecimal tryGetAggregatedValue();
 }

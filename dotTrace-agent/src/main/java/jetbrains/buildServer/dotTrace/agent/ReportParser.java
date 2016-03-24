@@ -19,54 +19,53 @@ import java.util.Collections;
 import java.util.List;
 
 public class ReportParser implements TextParser<List<MethodMetric>> {
-  private static final String ERROR_DURING_PARSING_ERROR_MESSAGE = "Error during parsing dotTrace report xml document";
-  private static final String FUNCTION_XPATH = "//Report/Function";
-  private static final String METHOD_NAME_ATTR = "FQN";
-  private static final String TOTAL_TIME_ATTR = "TotalTime";
-  private static final String OWN_TIME_ATTR = "OwnTime";
-  private final XmlDocumentManager myXmlDocumentManager;
+    private static final String ERROR_DURING_PARSING_ERROR_MESSAGE = "Error during parsing dotTrace report xml document";
+    private static final String FUNCTION_XPATH = "//Report/Function";
+    private static final String METHOD_NAME_ATTR = "FQN";
+    private static final String TOTAL_TIME_ATTR = "TotalTime";
+    private static final String OWN_TIME_ATTR = "OwnTime";
+    private final XmlDocumentManager myXmlDocumentManager;
 
-  public ReportParser(
-    @NotNull final XmlDocumentManager xmlDocumentManager) {
-    myXmlDocumentManager = xmlDocumentManager;
-  }
-
-  @NotNull
-  @Override
-  public List<MethodMetric> parse(@NotNull final String reportContent) {
-    if(StringUtil.isEmptyOrSpaces(reportContent)) {
-      return Collections.emptyList();
+    public ReportParser(
+            @NotNull final XmlDocumentManager xmlDocumentManager) {
+        myXmlDocumentManager = xmlDocumentManager;
     }
 
-    final List<MethodMetric> metrics = new ArrayList<MethodMetric>();
-    final Document doc = myXmlDocumentManager.convertStringToDocument(reportContent);
-    final XPath xpath = XPathFactory.newInstance().newXPath();
-    try {
-      final NodeList functionElements = (NodeList)xpath.evaluate(FUNCTION_XPATH, doc, XPathConstants.NODESET);
-      for (int functionIndex = 0; functionIndex < functionElements.getLength(); functionIndex++) {
-        final Node functionElement = functionElements.item(functionIndex);
-        @Nullable final Node methodNameAttr = functionElement.getAttributes().getNamedItem(METHOD_NAME_ATTR);
-        @Nullable final Node totalTimeAttr = functionElement.getAttributes().getNamedItem(TOTAL_TIME_ATTR);
-        @Nullable final Node ownTimeAttr = functionElement.getAttributes().getNamedItem(OWN_TIME_ATTR);
-        if(methodNameAttr == null || totalTimeAttr == null || ownTimeAttr == null) {
-          continue;
+    @NotNull
+    @Override
+    public List<MethodMetric> parse(@NotNull final String reportContent) {
+        if (StringUtil.isEmptyOrSpaces(reportContent)) {
+            return Collections.emptyList();
         }
 
-        final String methodName = methodNameAttr.getNodeValue();
-        final String totalTime = totalTimeAttr.getNodeValue();
-        final String ownTime = ownTimeAttr.getNodeValue();
+        final List<MethodMetric> metrics = new ArrayList<MethodMetric>();
+        final Document doc = myXmlDocumentManager.convertStringToDocument(reportContent);
+        final XPath xpath = XPathFactory.newInstance().newXPath();
+        try {
+            final NodeList functionElements = (NodeList) xpath.evaluate(FUNCTION_XPATH, doc, XPathConstants.NODESET);
+            for (int functionIndex = 0; functionIndex < functionElements.getLength(); functionIndex++) {
+                final Node functionElement = functionElements.item(functionIndex);
+                @Nullable final Node methodNameAttr = functionElement.getAttributes().getNamedItem(METHOD_NAME_ATTR);
+                @Nullable final Node totalTimeAttr = functionElement.getAttributes().getNamedItem(TOTAL_TIME_ATTR);
+                @Nullable final Node ownTimeAttr = functionElement.getAttributes().getNamedItem(OWN_TIME_ATTR);
+                if (methodNameAttr == null || totalTimeAttr == null || ownTimeAttr == null) {
+                    continue;
+                }
 
-        if(StringUtil.isEmptyOrSpaces(methodName) || StringUtil.isEmptyOrSpaces(totalTime) || StringUtil.isEmptyOrSpaces(ownTime)) {
-          continue;
+                final String methodName = methodNameAttr.getNodeValue();
+                final String totalTime = totalTimeAttr.getNodeValue();
+                final String ownTime = ownTimeAttr.getNodeValue();
+
+                if (StringUtil.isEmptyOrSpaces(methodName) || StringUtil.isEmptyOrSpaces(totalTime) || StringUtil.isEmptyOrSpaces(ownTime)) {
+                    continue;
+                }
+
+                metrics.add(new MethodMetric(methodName, totalTime, ownTime));
+            }
+        } catch (XPathExpressionException e) {
+            throw new BuildException(ERROR_DURING_PARSING_ERROR_MESSAGE);
         }
 
-        metrics.add(new MethodMetric(methodName, totalTime, ownTime));
-      }
+        return metrics;
     }
-    catch (XPathExpressionException e) {
-      throw new BuildException(ERROR_DURING_PARSING_ERROR_MESSAGE);
-    }
-
-    return metrics;
-  }
 }

@@ -16,171 +16,166 @@ import java.util.Collections;
 import static org.assertj.core.api.BDDAssertions.then;
 
 public class DotTraceSetupBuilderTest {
-  private Mockery myCtx;
-  private RunnerParametersService myRunnerParametersService;
-  private CommandLineResource myCommandLineResource;
-  private RunnerAssertions myAssertions;
-  private ResourceGenerator<Context> myProjectGenerator;
-  private ResourcePublisher myBeforeBuildPublisher;
-  private FileService myFileService;
-  private ResourcePublisher myDotTraceBuildPublisher;
-  private ResourceGenerator<Context> myPatternsGenerator;
-  private ResourceGenerator<Context> myCmdGenerator;
-  private ResourcePublisher myDotTraceSnapshotsPublisher;
+    private Mockery myCtx;
+    private RunnerParametersService myRunnerParametersService;
+    private CommandLineResource myCommandLineResource;
+    private RunnerAssertions myAssertions;
+    private ResourceGenerator<Context> myProjectGenerator;
+    private ResourcePublisher myBeforeBuildPublisher;
+    private FileService myFileService;
+    private ResourcePublisher myDotTraceBuildPublisher;
+    private ResourceGenerator<Context> myPatternsGenerator;
+    private ResourceGenerator<Context> myCmdGenerator;
+    private ResourcePublisher myDotTraceSnapshotsPublisher;
 
-  @BeforeMethod
-  public void setUp()
-  {
-    myCtx = new Mockery();
+    @BeforeMethod
+    public void setUp() {
+        myCtx = new Mockery();
 
-    //noinspection unchecked
-    myProjectGenerator = (ResourceGenerator<Context>)myCtx.mock(ResourceGenerator.class, "ProjectGenerator");
-    //noinspection unchecked
-    myPatternsGenerator = (ResourceGenerator<Context>)myCtx.mock(ResourceGenerator.class, "PatternsGenerator");
-    //noinspection unchecked
-    myCmdGenerator = (ResourceGenerator<Context>)myCtx.mock(ResourceGenerator.class, "CmdGenerator");
-    //noinspection unchecked
-    myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
-    myBeforeBuildPublisher = myCtx.mock(ResourcePublisher.class, "beforeBuildPublisher");
-    myDotTraceBuildPublisher = myCtx.mock(ResourcePublisher.class, "dotTraceBuildPublisher");
-    myDotTraceSnapshotsPublisher = myCtx.mock(ResourcePublisher.class, "dotTraceSnapshotsPublisher");
-    myCommandLineResource = myCtx.mock(CommandLineResource.class);
-    myFileService = myCtx.mock(FileService.class);
-    myAssertions = myCtx.mock(RunnerAssertions.class);
-  }
+        //noinspection unchecked
+        myProjectGenerator = (ResourceGenerator<Context>) myCtx.mock(ResourceGenerator.class, "ProjectGenerator");
+        //noinspection unchecked
+        myPatternsGenerator = (ResourceGenerator<Context>) myCtx.mock(ResourceGenerator.class, "PatternsGenerator");
+        //noinspection unchecked
+        myCmdGenerator = (ResourceGenerator<Context>) myCtx.mock(ResourceGenerator.class, "CmdGenerator");
+        //noinspection unchecked
+        myRunnerParametersService = myCtx.mock(RunnerParametersService.class);
+        myBeforeBuildPublisher = myCtx.mock(ResourcePublisher.class, "beforeBuildPublisher");
+        myDotTraceBuildPublisher = myCtx.mock(ResourcePublisher.class, "dotTraceBuildPublisher");
+        myDotTraceSnapshotsPublisher = myCtx.mock(ResourcePublisher.class, "dotTraceSnapshotsPublisher");
+        myCommandLineResource = myCtx.mock(CommandLineResource.class);
+        myFileService = myCtx.mock(FileService.class);
+        myAssertions = myCtx.mock(RunnerAssertions.class);
+    }
 
-  @Test
-  public void shouldCreateSetupWhenGetSetup()
-  {
-    // Given
-    final CommandLineSetup baseSetup = new CommandLineSetup("someTool", Arrays.asList(new CommandLineArgument("/arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("/arg2", CommandLineArgument.Type.PARAMETER)), Collections.singletonList(myCommandLineResource));
-    final File cmdFile = new File("cmd");
-    final File projectFile = new File("project");
-    final File snapshotDir = new File("snapshotRoot");
-    final File snapshotFile = new File(snapshotDir, DotTraceSetupBuilder.DOT_TRACE_SNAPSHOT_FILE);
-    final File patternsFile = new File("patterns");
-    final File reportFile = new File("report");
-    final Context ctx = new Context(baseSetup, projectFile, snapshotFile, patternsFile, reportFile);
+    @Test
+    public void shouldCreateSetupWhenGetSetup() {
+        // Given
+        final CommandLineSetup baseSetup = new CommandLineSetup("someTool", Arrays.asList(new CommandLineArgument("/arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("/arg2", CommandLineArgument.Type.PARAMETER)), Collections.singletonList(myCommandLineResource));
+        final File cmdFile = new File("cmd");
+        final File projectFile = new File("project");
+        final File snapshotDir = new File("snapshotRoot");
+        final File snapshotFile = new File(snapshotDir, DotTraceSetupBuilder.DOT_TRACE_SNAPSHOT_FILE);
+        final File patternsFile = new File("patterns");
+        final File reportFile = new File("report");
+        final Context ctx = new Context(baseSetup, projectFile, snapshotFile, patternsFile, reportFile);
 
-    myCtx.checking(new Expectations() {{
-      oneOf(myAssertions).contains(RunnerAssertions.Assertion.PROFILING_IS_NOT_ALLOWED);
-      will(returnValue(false));
-      
-      oneOf(myRunnerParametersService).tryGetRunnerParameter(Constants.USE_VAR);
-      will(returnValue("True"));
+        myCtx.checking(new Expectations() {{
+            oneOf(myAssertions).contains(RunnerAssertions.Assertion.PROFILING_IS_NOT_ALLOWED);
+            will(returnValue(false));
 
-      oneOf(myFileService).getTempFileName(DotTraceSetupBuilder.DOT_TRACE_CMD_EXT);
-      will(returnValue(cmdFile));
+            oneOf(myRunnerParametersService).tryGetRunnerParameter(Constants.USE_VAR);
+            will(returnValue("True"));
 
-      oneOf(myFileService).getTempFileName(DotTraceSetupBuilder.DOT_TRACE_PROJECT_EXT);
-      will(returnValue(projectFile));
+            oneOf(myFileService).getTempFileName(DotTraceSetupBuilder.DOT_TRACE_CMD_EXT);
+            will(returnValue(cmdFile));
 
-      oneOf(myFileService).getTempFileName("");
-      will(returnValue(snapshotDir));
+            oneOf(myFileService).getTempFileName(DotTraceSetupBuilder.DOT_TRACE_PROJECT_EXT);
+            will(returnValue(projectFile));
 
-      oneOf(myFileService).exists(snapshotDir);
-      will(returnValue(true));
+            oneOf(myFileService).getTempFileName("");
+            will(returnValue(snapshotDir));
 
-      oneOf(myFileService).getTempFileName(DotTraceSetupBuilder.DOT_TRACE_PATTERNS_EXT);
-      will(returnValue(patternsFile));
+            oneOf(myFileService).exists(snapshotDir);
+            will(returnValue(true));
 
-      oneOf(myFileService).getTempFileName(DotTraceSetupBuilder.DOT_TRACE_REPORT_EXT);
-      will(returnValue(reportFile));
+            oneOf(myFileService).getTempFileName(DotTraceSetupBuilder.DOT_TRACE_PATTERNS_EXT);
+            will(returnValue(patternsFile));
 
-      oneOf(myProjectGenerator).create(ctx);
-      will(returnValue("project's content"));
+            oneOf(myFileService).getTempFileName(DotTraceSetupBuilder.DOT_TRACE_REPORT_EXT);
+            will(returnValue(reportFile));
 
-      oneOf(myPatternsGenerator).create(ctx);
-      will(returnValue("patterns' content"));
+            oneOf(myProjectGenerator).create(ctx);
+            will(returnValue("project's content"));
 
-      oneOf(myCmdGenerator).create(ctx);
-      will(returnValue("cmd's content"));
-    }});
+            oneOf(myPatternsGenerator).create(ctx);
+            will(returnValue("patterns' content"));
 
-    final DotTraceSetupBuilder instance = createInstance();
+            oneOf(myCmdGenerator).create(ctx);
+            will(returnValue("cmd's content"));
+        }});
 
-    // When
-    final CommandLineSetup setup = instance.build(baseSetup).iterator().next();
+        final DotTraceSetupBuilder instance = createInstance();
 
-    // Then
-    myCtx.assertIsSatisfied();
-    then(setup.getToolPath()).isEqualTo(cmdFile.getPath());
-    then(setup.getArgs()).isEmpty();
-    then(setup.getResources()).containsExactly(
-      myCommandLineResource,
-      new CommandLineFile(myBeforeBuildPublisher, projectFile, "project's content"),
-      new CommandLineFile(myBeforeBuildPublisher, patternsFile, "patterns' content"),
-      new CommandLineFile(myBeforeBuildPublisher, cmdFile, "cmd's content"),
-      new CommandLineArtifact(myDotTraceBuildPublisher, reportFile),
-      new CommandLineArtifact(myDotTraceSnapshotsPublisher, snapshotFile));
-  }
+        // When
+        final CommandLineSetup setup = instance.build(baseSetup).iterator().next();
 
-  @DataProvider(name = "runnerParamUseDotTraceCases")
-  public Object[][] getParseTestsFromStringCases() {
-    return new Object[][] {
-      { null },
-      { "" },
-      { "abc" },
-      { "False" },
-      { "false" },
-    };
-  }
+        // Then
+        myCtx.assertIsSatisfied();
+        then(setup.getToolPath()).isEqualTo(cmdFile.getPath());
+        then(setup.getArgs()).isEmpty();
+        then(setup.getResources()).containsExactly(
+                myCommandLineResource,
+                new CommandLineFile(myBeforeBuildPublisher, projectFile, "project's content"),
+                new CommandLineFile(myBeforeBuildPublisher, patternsFile, "patterns' content"),
+                new CommandLineFile(myBeforeBuildPublisher, cmdFile, "cmd's content"),
+                new CommandLineArtifact(myDotTraceBuildPublisher, reportFile),
+                new CommandLineArtifact(myDotTraceSnapshotsPublisher, snapshotFile));
+    }
 
-  @Test(dataProvider = "runnerParamUseDotTraceCases")
-  public void shouldReturnBaseSetupWhenRunnerParamUseDotTraceIsEmptyOrFalse(final String useDotTrace)
-  {
-    // Given
-    final CommandLineSetup baseSetup = new CommandLineSetup("someTool", Arrays.asList(new CommandLineArgument("/arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("/arg2", CommandLineArgument.Type.PARAMETER)), Collections.singletonList(myCommandLineResource));
-    myCtx.checking(new Expectations() {{
-      oneOf(myAssertions).contains(RunnerAssertions.Assertion.PROFILING_IS_NOT_ALLOWED);
-      will(returnValue(false));
+    @DataProvider(name = "runnerParamUseDotTraceCases")
+    public Object[][] getParseTestsFromStringCases() {
+        return new Object[][]{
+                {null},
+                {""},
+                {"abc"},
+                {"False"},
+                {"false"},
+        };
+    }
 
-      oneOf(myRunnerParametersService).tryGetRunnerParameter(Constants.USE_VAR);
-      will(returnValue(useDotTrace));
-    }});
+    @Test(dataProvider = "runnerParamUseDotTraceCases")
+    public void shouldReturnBaseSetupWhenRunnerParamUseDotTraceIsEmptyOrFalse(final String useDotTrace) {
+        // Given
+        final CommandLineSetup baseSetup = new CommandLineSetup("someTool", Arrays.asList(new CommandLineArgument("/arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("/arg2", CommandLineArgument.Type.PARAMETER)), Collections.singletonList(myCommandLineResource));
+        myCtx.checking(new Expectations() {{
+            oneOf(myAssertions).contains(RunnerAssertions.Assertion.PROFILING_IS_NOT_ALLOWED);
+            will(returnValue(false));
 
-    final DotTraceSetupBuilder instance = createInstance();
+            oneOf(myRunnerParametersService).tryGetRunnerParameter(Constants.USE_VAR);
+            will(returnValue(useDotTrace));
+        }});
 
-    // When
-    final CommandLineSetup setup = instance.build(baseSetup).iterator().next();
+        final DotTraceSetupBuilder instance = createInstance();
 
-    // Then
-    myCtx.assertIsSatisfied();
-    then(setup).isEqualTo(baseSetup);
-  }
+        // When
+        final CommandLineSetup setup = instance.build(baseSetup).iterator().next();
 
-  @Test
-  public void shouldReturnBaseSetupWhenProfilingIsNotAllowed()
-  {
-    // Given
-    final CommandLineSetup baseSetup = new CommandLineSetup("someTool", Arrays.asList(new CommandLineArgument("/arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("/arg2", CommandLineArgument.Type.PARAMETER)), Collections.singletonList(myCommandLineResource));
-    myCtx.checking(new Expectations() {{
-      oneOf(myAssertions).contains(RunnerAssertions.Assertion.PROFILING_IS_NOT_ALLOWED);
-      will(returnValue(true));
-    }});
+        // Then
+        myCtx.assertIsSatisfied();
+        then(setup).isEqualTo(baseSetup);
+    }
 
-    final DotTraceSetupBuilder instance = createInstance();
+    @Test
+    public void shouldReturnBaseSetupWhenProfilingIsNotAllowed() {
+        // Given
+        final CommandLineSetup baseSetup = new CommandLineSetup("someTool", Arrays.asList(new CommandLineArgument("/arg1", CommandLineArgument.Type.PARAMETER), new CommandLineArgument("/arg2", CommandLineArgument.Type.PARAMETER)), Collections.singletonList(myCommandLineResource));
+        myCtx.checking(new Expectations() {{
+            oneOf(myAssertions).contains(RunnerAssertions.Assertion.PROFILING_IS_NOT_ALLOWED);
+            will(returnValue(true));
+        }});
 
-    // When
-    final CommandLineSetup setup = instance.build(baseSetup).iterator().next();
+        final DotTraceSetupBuilder instance = createInstance();
 
-    // Then
-    myCtx.assertIsSatisfied();
-    then(setup).isEqualTo(baseSetup);
-  }
+        // When
+        final CommandLineSetup setup = instance.build(baseSetup).iterator().next();
 
-  @NotNull
-  private DotTraceSetupBuilder createInstance()
-  {
-    return new DotTraceSetupBuilder(
-      myProjectGenerator,
-      myPatternsGenerator,
-      myCmdGenerator,
-      myBeforeBuildPublisher,
-      myDotTraceBuildPublisher,
-      myDotTraceSnapshotsPublisher,
-      myRunnerParametersService,
-      myFileService,
-      myAssertions);
-  }
+        // Then
+        myCtx.assertIsSatisfied();
+        then(setup).isEqualTo(baseSetup);
+    }
+
+    @NotNull
+    private DotTraceSetupBuilder createInstance() {
+        return new DotTraceSetupBuilder(
+                myProjectGenerator,
+                myPatternsGenerator,
+                myCmdGenerator,
+                myBeforeBuildPublisher,
+                myDotTraceBuildPublisher,
+                myDotTraceSnapshotsPublisher,
+                myRunnerParametersService,
+                myFileService,
+                myAssertions);
+    }
 }

@@ -6,47 +6,51 @@ import java.util.Collections;
 import java.util.List;
 
 public class Threshold {
-  private final List<MetricBase> myMetrics;
+    private final List<MetricBase> myMetrics;
 
-  public Threshold(@NotNull final List<MetricBase> metrics) {
-    myMetrics = Collections.unmodifiableList(metrics);
-  }
-
-  @NotNull
-  public List<MetricBase> getMetrics() {
-    return myMetrics;
-  }
-
-  public MetricBase getMetric(@NotNull String method) {
-    for (MetricBase mm : getMetrics()) {
-      if (mm instanceof MethodMetric) {
-        MethodMetric methodMetric = (MethodMetric) mm;
-        if (methodMetric.getMethodName().equalsIgnoreCase(method))
-          return mm;
-      }
+    public Threshold(@NotNull final List<MetricBase> metrics) {
+        myMetrics = Collections.unmodifiableList(metrics);
     }
-    for (MetricBase nm : getMetrics()) {
-      if (nm instanceof NamespaceMetric) {
-        NamespaceMetric namespaceMetric = (NamespaceMetric) nm;
-        if (method.startsWith(namespaceMetric.getNamespaceName()))
-          return nm;
-      }
+
+    @NotNull
+    public List<MetricBase> getMetrics() {
+        return myMetrics;
     }
-    return null;
-  }
 
-  @Override
-  public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    public MetricBase getMetric(@NotNull String method) {
+        for (MetricBase mm : getMetrics()) {
+            if (mm instanceof MethodMetric) {
+                MethodMetric methodMetric = (MethodMetric) mm;
+                if (methodMetric.getMethodName().equalsIgnoreCase(method))
+                    return mm;
+            }
+        }
+        for (MetricBase nm : getMetrics()) {
+            if (nm instanceof NamespaceMetric) {
+                NamespaceMetric namespaceMetric = (NamespaceMetric) nm;
+                if (method.startsWith(namespaceMetric.getNamespaceName().trim())) {
+                    if (namespaceMetric.getIgnoreMethods().contains(method))
+                        return null;
+                    else
+                        return nm;
+                }
+            }
+        }
+        return null;
+    }
 
-    final Threshold metrics = (Threshold) o;
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-    return getMetrics().equals(metrics.getMetrics());
-  }
+        final Threshold metrics = (Threshold) o;
 
-  @Override
-  public int hashCode() {
-    return getMetrics().hashCode();
-  }
+        return getMetrics().equals(metrics.getMetrics());
+    }
+
+    @Override
+    public int hashCode() {
+        return getMetrics().hashCode();
+    }
 }
